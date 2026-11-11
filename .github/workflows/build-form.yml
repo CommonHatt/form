@@ -1,0 +1,33 @@
+name: Build FORM Store PC Builder and Trade-in
+
+on:
+  push:
+    paths:
+      - 'build_form.py'
+      - '.github/workflows/build-form.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout FORM Store
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Build updated ZIP from checked-in form.zip
+        run: python build_form.py
+      - name: Publish updated ZIP in repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f FORM_PC_TradeIn_FULL.zip
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish FORM Store with PC Builder and Trade-in"
+            git push
+          fi
